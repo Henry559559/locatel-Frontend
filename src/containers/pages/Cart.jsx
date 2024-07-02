@@ -146,7 +146,7 @@ const Cart = ({
 
                         <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
                             <dt className="flex items-center text-sm text-gray-600">
-                            <span>Shipping estimate</span>
+                            <span>Iva</span>
                             <a href="#" className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
                                 <span className="sr-only">Learn more about how shipping is calculated</span>
                                 <QuestionMarkCircleIcon className="h-5 w-5" aria-hidden="true" />
