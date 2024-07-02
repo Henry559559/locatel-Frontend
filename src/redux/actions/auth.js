@@ -39,7 +39,7 @@ function getCSRFToken() {
 }
 
 export const check_authenticated = () => async dispatch => {
-    if(localStorage.getItem('access')){
+    if (localStorage.getItem('access')) {
         const config = {
             headers: {
                 'Accept': 'application/json',
@@ -59,14 +59,10 @@ export const check_authenticated = () => async dispatch => {
                     type: AUTHENTICATED_SUCCESS
                 });
             } else {
-                dispatch({
-                    type: AUTHENTICATED_FAIL
-                });
+                dispatch(refreshToken());
             }
-        } catch(err){
-            dispatch({
-                type: AUTHENTICATED_FAIL
-            });
+        } catch (err) {
+            dispatch(refreshToken());
         }
     } else {
         dispatch({
@@ -150,7 +146,8 @@ export const load_user = () => async dispatch => {
                     type: USER_LOADED_FAIL
                 });
             }
-        } catch(err) {
+        }
+        catch(err){
             dispatch({
                 type: USER_LOADED_FAIL
             });
@@ -167,11 +164,9 @@ export const login = (email, password) => async dispatch => {
         type: SET_AUTH_LOADING
     });
 
-    const csrfToken = getCSRFToken();
     const config = {
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
+            'Content-Type': 'application/json'
         }
     };
 
@@ -188,25 +183,36 @@ export const login = (email, password) => async dispatch => {
                 type: LOGIN_SUCCESS,
                 payload: res.data
             });
+
+            localStorage.setItem('access', res.data.access);
+            localStorage.setItem('refresh', res.data.refresh);
+
             dispatch(load_user());
+            dispatch({
+                type: REMOVE_AUTH_LOADING
+            });
             dispatch(setAlert('Inicio de sesión con éxito', 'green'));
         } else {
             dispatch({
                 type: LOGIN_FAIL
             });
-            dispatch(setAlert('Error al iniciar sesión.', 'red'));
+            dispatch({
+                type: REMOVE_AUTH_LOADING
+            });
+            dispatch(setAlert('Error al iniciar sesion.', 'red'));
         }
-    } catch(err) {
+    }
+    catch(err){
         dispatch({
             type: LOGIN_FAIL
         });
-        dispatch(setAlert('Error al iniciar sesión. Intenta más tarde', 'red'));
-    } finally {
         dispatch({
             type: REMOVE_AUTH_LOADING
         });
+        dispatch(setAlert('Error al iniciar sesion. Intenta mas tarde', 'red'));
     }
 }
+
 
 export const activate = (uid, token) => async dispatch => {
     dispatch({
@@ -250,14 +256,12 @@ export const activate = (uid, token) => async dispatch => {
     }
 };
 
-export const refresh = () => async dispatch => {
+export const refreshToken = () => async dispatch => {
     if (localStorage.getItem('refresh')) {
-        const csrfToken = getCSRFToken();
         const config = {
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
+                'Content-Type': 'application/json'
             }
         };
 
@@ -273,16 +277,22 @@ export const refresh = () => async dispatch => {
                     type: REFRESH_SUCCESS,
                     payload: res.data
                 });
+
+                localStorage.setItem('refresh', res.data.refresh);
+                localStorage.setItem('access', res.data.access);
             } else {
                 dispatch({
                     type: REFRESH_FAIL
                 });
+                localStorage.removeItem('access');
+                localStorage.removeItem('refresh');
             }
-        } catch(err) {
-            console.error('Error refreshing token:', err);
+        } catch (err) {
             dispatch({
                 type: REFRESH_FAIL
             });
+            localStorage.removeItem('access');
+            localStorage.removeItem('refresh');
         }
     } else {
         dispatch({
@@ -291,18 +301,18 @@ export const refresh = () => async dispatch => {
     }
 }
 
+
 export const reset_password = (email) => async dispatch => {
     dispatch({
         type: SET_AUTH_LOADING
     });
 
-    const csrfToken = getCSRFToken();
     const config = {
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
+            'Content-Type': 'application/json'
         }
     };
+
     const body = JSON.stringify({ email });
 
     try{
@@ -342,11 +352,9 @@ export const reset_password_confirm = (uid, token, new_password, re_new_password
         type: SET_AUTH_LOADING
     });
 
-    const csrfToken = getCSRFToken();
     const config = {
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
+            'Content-Type': 'application/json'
         }
     };
 
@@ -402,6 +410,5 @@ export const logout = () => dispatch => {
     dispatch({
         type: LOGOUT
     });
-
-    dispatch(setAlert('Sesión cerrada con éxito', 'green'));
+    dispatch(setAlert('Succesfully logged out', 'green'));
 }

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Link, Navigate, NavLink } from "react-router-dom";
 import { Popover, Transition, Menu } from "@headlessui/react";
-import { ChevronDownIcon, MenuIcon, XIcon } from "@heroicons/react/solid";
+import { ChevronDownIcon, MenuIcon, ShoppingBagIcon, ShoppingCartIcon, XIcon } from "@heroicons/react/solid";
 import Alert from "../../components/Alert";
 import { connect } from "react-redux";
 import { logout } from "../../redux/actions/auth";
@@ -104,6 +104,7 @@ const Navbar = ({
   get_categories,
   categories,
   get_search_products,
+  total_items
  }) => {
   const [redirect, setRedirect] = useState(false);
   const [render, setRender] = useState(false);
@@ -225,6 +226,11 @@ const Navbar = ({
               </Link>
             </div>
             <div className="-mr-2 -my-2 md:hidden">
+              <Link to="/cart" className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                <span className="sr-only">Open menu</span>
+                <ShoppingCartIcon className="h-6 w-6" aria-hidden="true" />
+                <span className="text-xs absolute top-1 mt-3 ml-4 bg-red-500 text-white font-semibold rounded-full px-2 text-center">{total_items}</span>
+              </Link>
               <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                 <span className="sr-only">Open menu</span>
                 <MenuIcon className="h-6 w-6" aria-hidden="true" />
@@ -244,6 +250,11 @@ const Navbar = ({
                 />}
               </Popover.Group>
               <div className="flex items-center md:ml-12">
+              <Link to="/cart">
+                <ShoppingCartIcon className="h-8 w-8 cursor-pointer text-gray-300 mr-4"/>
+                <span className="text-xs absolute top-1 mt-3 ml-4 bg-red-500 text-white font-semibold rounded-full px-2 text-center">{total_items}</span>
+              </Link>
+                
                 {isAuthenticated ? authLinks : guestLinks}
               </div>
             </div>
@@ -321,6 +332,7 @@ const Navbar = ({
 const mapStateToProps = (state) => ({
   isAuthenticated: state.Auth.isAuthenticated,
   categories: state.Categories.categories,
+  total_items: state.Cart.total_items,
   user: state.Auth.user,
 });
 
